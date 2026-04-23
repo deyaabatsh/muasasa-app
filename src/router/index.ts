@@ -13,6 +13,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/LoginView.vue')
     },
     {
+    path: '/register',
+    name: 'register',
+    component: () => import('../views/RegisterView.vue')
+    },
+    {
         path: '/manager',
         component: () => import('../layouts/ManagerLayout.vue'),
         meta: { requiresAuth: true, role: 'مدير' },

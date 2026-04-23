@@ -1,7 +1,12 @@
 <template>
   <div class="dashboard">
     <h1>لوحة التحكم</h1>
-
+    <!-- إشعار طلبات الانضمام -->
+    <div v-if="pendingCount > 0" class="pending-alert" @click="$router.push('/manager/employees')">
+        <span>⏳</span>
+            <p>يوجد <strong>{{ pendingCount }}</strong> طلب انضمام بانتظار موافقتك</p>
+        <span>←</span>
+    </div>
     <!-- الإحصائيات -->
     <div class="stats-grid">
       <div class="stat-card blue">
@@ -83,13 +88,14 @@ const getStatusClass = (status: string) => {
   if (status === 'متأخر') return 'red'
   return 'orange'
 }
-
+const pendingCount = ref(0)
 onMounted(async () => {
   try {
-    const [employees, tasks, attendance] = await Promise.all([
+    const [employees, tasks, attendance, pending] = await Promise.all([
       api.get('/employees'),
       api.get('/tasks'),
       api.get('/attendance'),
+      api.get('/employees/pending'),
     ])
 
     stats.value.employees = employees.data.length
@@ -97,6 +103,7 @@ onMounted(async () => {
     stats.value.pendingTasks = tasks.data.filter((t: any) => t.status === 'متبقي').length
     stats.value.presentToday = attendance.data.filter((a: any) => a.date === new Date().toISOString().split('T')[0]).length
     recentTasks.value = tasks.data.slice(0, 5)
+    pendingCount.value = pending.data.length
   } catch (e) {
     console.error(e)
   }
@@ -191,4 +198,29 @@ th {
 .badge.green { background: #e8f5e9; color: #34a853; }
 .badge.orange { background: #fff3e0; color: #fb8c00; }
 .badge.red { background: #ffebee; color: #e53935; }
+.pending-alert {
+  background: #fff3e0;
+  border: 1px solid #fb8c00;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  cursor: pointer;
+}
+
+.pending-alert span {
+  font-size: 24px;
+}
+
+.pending-alert p {
+  flex: 1;
+  color: #333;
+  margin: 0;
+}
+
+.pending-alert strong {
+  color: #fb8c00;
+}
 </style>

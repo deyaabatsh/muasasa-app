@@ -4,7 +4,35 @@
       <h1>الموظفون</h1>
       <button class="add-btn" @click="showModal = true">+ إضافة موظف</button>
     </div>
-
+    <!-- طلبات الانضمام المعلقة -->
+    <div class="pending-section" v-if="pendingEmployees.length > 0">
+        <h2>⏳ طلبات الانضمام ({{ pendingEmployees.length }})</h2>
+        <div class="table-container">
+            <table>
+            <thead>
+                <tr>
+                <th>الاسم</th>
+                <th>الإيميل</th>
+                <th>القسم</th>
+                <th>الهاتف</th>
+                <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="employee in pendingEmployees" :key="employee.id">
+                <td>{{ employee.name }}</td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.department || '-' }}</td>
+                <td>{{ employee.phone || '-' }}</td>
+                <td class="actions">
+                    <button class="approve-btn" @click="approveEmployee(employee.id)">✅ موافقة</button>
+                    <button class="reject-btn" @click="rejectEmployee(employee.id)">❌ رفض</button>
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+    </div>
     <!-- جدول الموظفين -->
     <div class="table-container">
       <table>
@@ -122,6 +150,31 @@ const deleteEmployee = async (id: number) => {
     fetchEmployees()
   }
 }
+
+const pendingEmployees = ref([])
+
+const fetchPendingEmployees = async () => {
+  const response = await api.get('/employees/pending')
+  pendingEmployees.value = response.data
+}
+
+const approveEmployee = async (id: number) => {
+  await api.post(`/employees/${id}/approve`)
+  fetchPendingEmployees()
+  fetchEmployees()
+}
+
+const rejectEmployee = async (id: number) => {
+  if (confirm('هل أنت متأكد من رفض الطلب؟')) {
+    await api.post(`/employees/${id}/reject`)
+    fetchPendingEmployees()
+  }
+}
+
+onMounted(() => {
+  fetchEmployees()
+  fetchPendingEmployees()
+})
 
 onMounted(fetchEmployees)
 </script>
@@ -261,6 +314,37 @@ th {
   border: none;
   padding: 12px;
   border-radius: 8px;
+  cursor: pointer;
+}
+.pending-section {
+  margin-bottom: 24px;
+}
+
+.pending-section h2 {
+  color: #fb8c00;
+  margin-bottom: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.approve-btn {
+  background: #e8f5e9;
+  color: #34a853;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.reject-btn {
+  background: #ffebee;
+  color: #e53935;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
 }
 </style>

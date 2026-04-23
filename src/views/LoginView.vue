@@ -32,6 +32,9 @@
         </button>
       </form>
     </div>
+    <p class="register-link">
+         ما عندك حساب؟ <router-link to="/register">سجّل الآن</router-link>
+    </p>
   </div>
 </template>
 
@@ -136,5 +139,16 @@ button:disabled {
   color: red;
   font-size: 14px;
   margin-bottom: 8px;
+}
+.register-link {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #666;
+}
+
+.register-link a {
+  color: #1a73e8;
+  text-decoration: none;
+  font-weight: bold;
 }
 </style>
